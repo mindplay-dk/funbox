@@ -10,6 +10,8 @@ This container was designed specifically for PHP 8 to leverage `fn` function exp
 
 Compared with a more traditional IOC container, this approach is more verbose: no auto-wiring of any sort is possible. But it's also more explicit - every component has a defined function expression, which makes it possible to verify all dependencies up front, without actually loading any classes. While the use of function expressions enable an IDE or static analysis tool to verify and type-check all constructor calls.
 
+In terms of performance, a [preliminary benchmark](https://github.com/mindplay-dk/unbox/compare/php-8...funbox-benchmark) against [unbox](https://github.com/mindplay-dk/unbox) suggests a 20% overhead in time to bootstrap, but with component lookups at least twice as fast - overall performance is on par with Pimple.
+
 ## Usage
 
 Create a `Context` and register your components:
