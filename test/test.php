@@ -14,7 +14,7 @@ test(
 
         $context->register(
             Cache::class,
-            fn (#[name("cache.path")] $path) => new FileCache($path)
+            fn (#[name("cache.path")] string $path) => new FileCache($path)
         );
 
         $context->set("cache.path", "/tmp/cache");
@@ -31,8 +31,7 @@ test(
 
         $container = $context->createContainer();
 
-        $container->get(Cache::class);
-
+        ok($container->get(Cache::class) instanceof FileCache);
         ok($container->get(UserRepository::class) instanceof UserRepository);
         eq($container->get(UserRepository::class)->db, $container->get(Database::class));
         eq($container->get(UserRepository::class)->cache, $container->get(Cache::class));
