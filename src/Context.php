@@ -8,18 +8,18 @@ use ReflectionFunction;
 class Context
 {
     /**
-     * @var ComponentFactory[] map where component name => ComponentFactory instance
+     * @var Component[] map where component name => Component instance
      */
     private array $components = [];
 
     /**
-     * @var ComponentFactory[] list of unvalidated ComponentFactory instances
+     * @var Component[] list of unvalidated Component instances
      */
     private array $unvalidated = [];
 
     public function register(string $name, Closure $create): void
     {
-        $this->components[$name] = $this->unvalidated[] = new ComponentFactory($create);
+        $this->components[$name] = $this->unvalidated[] = new Component($name, $create);
     }
 
     public function set(string $name, mixed $value): void
@@ -27,21 +27,15 @@ class Context
         $this->register($name, fn () => $value);
     }
 
+    public function has(string $name): bool
+    {
+        return array_key_exists($name, $this->components);
+    }
+
     public function createContainer()
     {
-        foreach ($this->unvalidated as $factory) {
-            foreach ($factory->names as $index => $name) {
-                if (! array_key_exists($name, $this->components)) {
-                    $function = new ReflectionFunction($factory->create);
-                    
-                    throw new DependencyException(
-                        "Factory function in {$function->getFileName()}"
-                        . " at line {$function->getStartLine()}"
-                        . " has an unsatisfied dependency: {$name}"
-                        . " for parameter \${$factory->params[$index]->getName()}"
-                    );
-                }
-            }
+        foreach ($this->unvalidated as $component) {
+            $component->validate($this);
         }
 
         $this->unvalidated = [];
