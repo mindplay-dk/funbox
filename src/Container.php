@@ -21,7 +21,7 @@ class Container implements ContainerInterface
         $this->components = $components;
     }
 
-    public function get($name)
+    public function get(string $name)
     {
         // TODO verify against cyclic dependencies
 
@@ -32,7 +32,7 @@ class Container implements ContainerInterface
         return $this->instances[$name];
     }
 
-    public function has($name)
+    public function has(string $name): bool
     {
         return array_key_exists($name, $this->components);
     }
