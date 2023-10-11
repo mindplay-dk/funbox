@@ -7,9 +7,9 @@ use ReflectionFunction;
 use ReflectionNamedType;
 use ReflectionParameter;
 
-class Component
+class Component implements Entry, Definition
 {
-    private string $name;
+    private string $id;
 
     private Closure $create;
 
@@ -19,13 +19,13 @@ class Component
     private array $params = [];
 
     /**
-     * @var string[] list of dependencies (component names)
+     * @var string[] list of dependencies (Entry IDs)
      */
     private array $dependencies = [];
 
-    public function __construct(string $name, Closure $create)
+    public function __construct(string $id, Closure $create)
     {
-        $this->name = $name;
+        $this->id = $id;
         $this->create = $create;
 
         $function = new ReflectionFunction($create);
@@ -35,7 +35,7 @@ class Component
         foreach ($this->params as $param) {
             $type = $param->getType();
 
-            $attrs = $param->getAttributes("name");
+            $attrs = $param->getAttributes(id::class);
 
             if (count($attrs)) {
                 $this->dependencies[] = $attrs[0]->getArguments()[0];
@@ -46,8 +46,8 @@ class Component
                     "Factory function in {$function->getFileName()}"
                     . "#{$function->getStartLine()}"
                     . " has an unspecified dependency \${$param->getName()}"
-                    . " for component: {$this->name}"
-                    . " (use the #[name] attribute to specify the name or type)"
+                    . " for component: {$this->id}"
+                    . " (use an #[id] attribute to specify the name or type)"
                 );
             }
         }
@@ -55,21 +55,21 @@ class Component
 
     public function validate(Context $context): void
     {
-        foreach ($this->dependencies as $index => $name) {
-            if (! $context->has($name)) {
+        foreach ($this->dependencies as $index => $id) {
+            if (! $context->has($id)) {
                 $function = new ReflectionFunction($this->create);
-                
+
                 throw new DependencyException(
                     "component function in {$function->getFileName()}"
                     . " at line {$function->getStartLine()}"
-                    . " has an unsatisfied dependency: {$name}"
+                    . " has an unsatisfied dependency: {$id}"
                     . " for parameter \${$this->params[$index]->getName()}"
                 );
             }
         }
     }
 
-    public function resolve(Container $container)
+    public function resolve(Container $container): mixed
     {
         $resolved = [];
 

@@ -21,7 +21,7 @@ class Container implements ContainerInterface
         $this->components = $components;
     }
 
-    public function get(string $name)
+    public function get(string $name): mixed
     {
         // TODO verify against cyclic dependencies
 

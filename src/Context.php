@@ -3,36 +3,35 @@
 namespace mindplay\funbox;
 
 use Closure;
-use ReflectionFunction;
 
 class Context
 {
     /**
-     * @var Component[] map where component name => Component instance
+     * @var Entry[] map where Entry ID => Component instance
      */
     private array $components = [];
 
     /**
-     * @var Component[] list of unvalidated Component instances
+     * @var Definition[] list of unvalidated Definitions
      */
     private array $unvalidated = [];
 
-    public function register(string $name, Closure $create): void
+    public function register(string $id, Closure $create): void
     {
-        $this->components[$name] = $this->unvalidated[] = new Component($name, $create);
+        $this->components[$id] = $this->unvalidated[] = new Component($id, $create);
     }
 
-    public function set(string $name, mixed $value): void
+    public function set(string $id, mixed $value): void
     {
-        $this->register($name, fn () => $value);
+        $this->register($id, fn () => $value);
     }
 
-    public function has(string $name): bool
+    public function has(string $id): bool
     {
-        return array_key_exists($name, $this->components);
+        return array_key_exists($id, $this->components);
     }
 
-    public function createContainer()
+    public function createContainer(): Container
     {
         foreach ($this->unvalidated as $component) {
             $component->validate($this);

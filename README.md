@@ -21,7 +21,7 @@ $context = new Context();
 
 $context->register(
     Cache::class,
-    fn (#[name("cache.path")] string $path) => new FileCache($path)
+    fn (#[id("cache.path")] string $path) => new FileCache($path)
 );
 
 $context->set("cache.path", "/tmp/cache");
@@ -37,7 +37,7 @@ $context->register(
 );
 ```
 
-Note the use of the attribute `#[name("cache.path")]` applied to the `string $path` argument for the `FileCache` function expression - this tells the container to look up the dependency in the component named `cache.path`.
+Note the use of the attribute `#[id("cache.path")]` applied to the `string $path` argument for the `FileCache` function expression - this tells the container to look up the dependency in the component named `cache.path`.
 
 Other dependencies in this example are singletons - they're registered under their type-names, so they can be automatically resolved against the type-hints of other function expressions.
 

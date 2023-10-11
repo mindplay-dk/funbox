@@ -2,6 +2,7 @@
 
 use mindplay\funbox\Context;
 use mindplay\funbox\DependencyException;
+use mindplay\funbox\id;
 
 require dirname(__DIR__) . "/vendor/autoload.php";
 
@@ -14,7 +15,7 @@ test(
 
         $context->register(
             Cache::class,
-            fn (#[name("cache.path")] string $path) => new FileCache($path)
+            fn (#[id("cache.path")] string $path) => new FileCache($path)
         );
 
         $context->set("cache.path", "/tmp/cache");
@@ -23,7 +24,7 @@ test(
             Database::class,
             fn () => new Database()
         );
-        
+
         $context->register(
             UserRepository::class,
             fn (Database $db, Cache $cache) => new UserRepository($db, $cache)
@@ -78,7 +79,7 @@ test(
             Database::class,
             fn () => new Database()
         );
-        
+
         $context->register(
             UserRepository::class,
             fn (Database $db, Cache $cache) => new UserRepository($db, $cache)
