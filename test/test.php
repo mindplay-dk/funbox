@@ -40,7 +40,7 @@ test(
 );
 
 test(
-    "throws for unspecified dependency names",
+    "throws for unspecified dependencies",
     function () {
         $context = new Context();
 
@@ -62,7 +62,7 @@ test(
             function () use ($context) {
                 $context->register(
                     Cache::class,
-                    fn ($path) => new FileCache($path)
+                    fn (string $path) => new FileCache($path)
                 );
             },
             "/unspecified dependency \\\$path/"
