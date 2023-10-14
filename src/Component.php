@@ -42,13 +42,7 @@ class Component implements Entry, Definition
             } else if ($type instanceof ReflectionNamedType && ! $type->isBuiltin()) {
                 $this->dependencies[] = $type->getName();
             } else {
-                throw new DependencyException(
-                    "Factory function in {$function->getFileName()}"
-                    . "#{$function->getStartLine()}"
-                    . " has an unspecified dependency \${$param->getName()}"
-                    . " for component: {$this->id}"
-                    . " (use an #[id] attribute to specify the name or type)"
-                );
+                throw new UnspecifiedDependencyException($function, $param, $this->id);
             }
         }
     }
@@ -59,12 +53,7 @@ class Component implements Entry, Definition
             if (! $context->has($id)) {
                 $function = new ReflectionFunction($this->create);
 
-                throw new DependencyException(
-                    "component function in {$function->getFileName()}"
-                    . " at line {$function->getStartLine()}"
-                    . " has an unsatisfied dependency: {$id}"
-                    . " for parameter \${$this->params[$index]->getName()}"
-                );
+                throw new UnsatisfiedDependencyException($function, $this->params[$index], $id);
             }
         }
     }
