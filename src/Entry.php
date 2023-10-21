@@ -2,6 +2,7 @@
 
 namespace mindplay\funbox;
 
-interface Entry {
+interface Entry
+{
     public function resolve(Container $container): mixed;
 }

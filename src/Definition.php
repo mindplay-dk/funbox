@@ -2,6 +2,7 @@
 
 namespace mindplay\funbox;
 
-interface Definition {
+interface Definition
+{
     public function validate(Context $context): void;
 }
