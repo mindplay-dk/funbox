@@ -50,7 +50,7 @@ class Component implements Entry, Definition
     public function validate(Context $context): void
     {
         foreach ($this->dependencies as $index => $id) {
-            if (! $context->has($id)) {
+            if (! $context->has($id) && ! $this->params[$index]->isOptional() && ! $this->params[$index]->allowsNull()) {
                 $function = new ReflectionFunction($this->create);
 
                 throw new UnsatisfiedDependencyException($function, $this->params[$index], $id);
@@ -62,8 +62,14 @@ class Component implements Entry, Definition
     {
         $resolved = [];
 
-        foreach ($this->dependencies as $dependency) {
-            $resolved[] = $container->get($dependency);
+        foreach ($this->dependencies as $index => $id) {
+            if ($container->has($id)) {
+                $resolved[] = $container->get($id);
+            } else if ($this->params[$index]->isOptional()) {
+                $resolved[] = $this->params[$index]->getDefaultValue();
+            } else if ($this->params[$index]->allowsNull()) {
+                $resolved[] = null;
+            }
         }
 
         // TODO handle errors

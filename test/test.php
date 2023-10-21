@@ -96,4 +96,30 @@ test(
     }
 );
 
+test(
+    "can fall back to null for nullable parameters",
+    function () {
+        $context = new Context();
+
+        $context->register("test", fn (?Database $db) => $db);
+
+        $container = $context->createContainer();
+
+        eq($container->get("test"), null, "nullable dependency should resolve to null");
+    }
+);
+
+test(
+    "can fall back to default for optional parameters",
+    function () {
+        $context = new Context();
+
+        $context->register("test", fn (#[id("port")] ?int $number = 123) => $number);
+
+        $container = $context->createContainer();
+
+        eq($container->get("test"), 123, "optional dependency should resolve to null");
+    }
+);
+
 exit(run());
