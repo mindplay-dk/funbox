@@ -13,22 +13,7 @@ test(
     function () {
         $context = new Context();
 
-        $context->register(
-            Cache::class,
-            fn (#[id("cache.path")] string $path) => new FileCache($path)
-        );
-
-        $context->set("cache.path", "/tmp/cache");
-
-        $context->register(
-            Database::class,
-            fn () => new Database()
-        );
-
-        $context->register(
-            UserRepository::class,
-            fn (Database $db, Cache $cache) => new UserRepository($db, $cache)
-        );
+        $context->add(new UserProvider);
 
         $container = $context->createContainer();
 
