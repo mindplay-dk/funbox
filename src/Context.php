@@ -12,6 +12,11 @@ class Context
     private array $components = [];
 
     /**
+     * @var (Extension[])[] map where Entry ID => Extension list
+     */
+    private array $extensions = [];
+
+    /**
      * @var Definition[] list of unvalidated Definitions
      */
     private array $unvalidated = [];
@@ -24,6 +29,11 @@ class Context
     public function set(string $id, mixed $value): void
     {
         $this->register($id, fn () => $value);
+    }
+
+    public function extend(string $id, Closure $extend): void
+    {
+        $this->extensions[$id][] = $this->unvalidated[] = new Component($id, $extend);
     }
 
     public function has(string $id): bool
@@ -39,6 +49,6 @@ class Context
 
         $this->unvalidated = [];
 
-        return new Container($this->components);
+        return new Container($this->components, $this->extensions);
     }
 }

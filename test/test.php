@@ -122,4 +122,20 @@ test(
     }
 );
 
+test(
+    "can extend components",
+    function () {
+        $context = new Context();
+
+        $context->set("a", 1);
+        $context->set("b", 100);
+
+        $context->extend("a", fn (#[id("a")] int $a, #[id("b")] int $b) => $a + $b);
+
+        $container = $context->createContainer();
+
+        eq($container->get("a"), 101, "extension applied, with resolved dependency");
+    }
+);
+
 exit(run());
