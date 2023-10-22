@@ -1,20 +1,21 @@
-### `mindplay/funbox`
+# `mindplay/funbox`
 
-This package implements a simple IOC container.
+**[Pimple](https://github.com/silexphp/Pimple) for the PHP 8 era:**
 
-⚠ ***WARNING:** just a playful prototype at this stage!*
+* IDE support, static type-checking, auto-completions.
+* Full container bootstrapping validation at startup.
+* Performance on par with that of Pimple.
+* Verbosity similar to Pimple, but more declarative.
 
-For the moment, look at `test/test.php` to see how this approach works in practice.
+⚠ ***WARNING:** still under development.*
 
-This container was designed specifically for PHP 8 to leverage `fn` function expressions with [attributes](https://www.php.net/manual/en/language.attributes.overview.php) for configuration.
+This container was designed specifically for PHP 8.x to leverage `fn` function expressions with [attributes](https://www.php.net/manual/en/language.attributes.overview.php) for configuration.
 
-Compared with a more traditional IOC container, this approach is more verbose: no auto-wiring of any sort is possible. But it's also more explicit - every component has a defined function expression, which makes it possible to verify all dependencies up front, without actually loading any classes. While the use of function expressions enable an IDE or static analysis tool to verify and type-check all constructor calls.
-
-In terms of performance, a [preliminary benchmark](https://github.com/mindplay-dk/unbox/compare/php-8...funbox-benchmark) against [unbox](https://github.com/mindplay-dk/unbox) suggests a 20% overhead in time to bootstrap, but with component lookups at least twice as fast - overall performance is on par with Pimple.
+Compared with complex IOC containers, configuration is more verbose, but also more explicit - every component has a defined factory function, which makes it possible to validate all dependencies up front, without actually loading any classes. The use of function expressions enable an IDE or static analysis tool to verify and type-check all constructor calls.
 
 ## Usage
 
-Create a `Context` and register your components:
+Create a `Context` and bootstrap it:
 
 ```php
 $context = new Context();
@@ -37,11 +38,9 @@ $context->register(
 );
 ```
 
-Note the use of the attribute `#[id("cache.path")]` applied to the `string $path` argument for the `FileCache` function expression - this tells the container to look up the dependency in the component named `cache.path`.
+Note the use of the attribute `#[id("cache.path")]` applied to the `string $path` argument for the `FileCache` function expression - this tells the container to resolve the dependency using the component named `cache.path`.
 
-Other dependencies in this example are singletons - they're registered under their type-names, so they can be automatically resolved against the type-hints of other function expressions.
-
-Now create a `Container` and grab your component instance from it:
+Now create a `Container` and look up a component instance:
 
 ```php
 $container = $context->createContainer();
@@ -49,4 +48,75 @@ $container = $context->createContainer();
 $cache = $container->get(UserRepository::class);
 ```
 
-The dependencies of `UserRepository` get resolved and injected.
+The dependencies of the `UserRepository` factory-function will get resolved and injected.
+
+## Providers
+
+You can achieve modularity by wrapping a section of bootstrapping in a `Provider` implementation:
+
+```php
+class CacheProvider implements Provider
+{
+    public function register(Context $context)
+    {
+        $context->register(
+            Cache::class,
+            fn (#[id("cache.path")] string $path) => new FileCache($path)
+        );
+
+        $context->set("cache.path", "/tmp/cache");
+    }
+}
+```
+
+Use the `add` method to apply the provider to a `Context`:
+
+```php
+$context->add(new CacheProvider());
+```
+
+### `Config` Provider
+
+The built-in `Config` provider allows you to load configuration from standard JSON or INI files, and/or import your system environment variables.
+
+You can use configuration providers to decouple yourself from configuration sources - for example, if you create a provider that expects some external configuration:
+
+```php
+class CacheProvider implements Provider
+{
+    public function register(Context $context)
+    {
+        $context->register(
+            Cache::class,
+            fn (#[id("cache.path")] string $path) => new FileCache($path)
+        );
+    }
+}
+```
+
+Note that `cache.path` was not defined by this provider - we can now load it from a `config.json` file like this one:
+
+```json
+{
+    "cache": {
+        "path": "/tmp/my-app/cache"
+    }
+}
+```
+
+```php
+$context->add(Config::fromJSON("config.json"));
+```
+
+Or, from a `config.ini` file like the following:
+
+```ini
+[cache]
+path = /tmp/my-app/cache
+```
+
+```php
+$context->add(Config::fromINI("config.ini"));
+```
+
+TODO import system environment
