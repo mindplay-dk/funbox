@@ -26,7 +26,7 @@ class Config implements Provider
         return new self(getenv(null, $local_only));
     }
 
-    public function bootstrap(Registry $context): void
+    public function register(Context $context): void
     {
         foreach ($this->data as $id => $value) {
             $context->set($id, $value);

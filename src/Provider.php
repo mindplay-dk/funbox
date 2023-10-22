@@ -4,5 +4,5 @@ namespace mindplay\funbox;
 
 interface Provider
 {
-    public function bootstrap(Registry $registry): void;
+    public function register(Context $context): void;
 }

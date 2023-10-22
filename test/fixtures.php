@@ -1,7 +1,7 @@
 <?php
 
+use mindplay\funbox\Context;
 use mindplay\funbox\Provider;
-use mindplay\funbox\Registry;
 use mindplay\funbox\id;
 
 interface Cache
@@ -27,7 +27,7 @@ class UserRepository
 
 class UserProvider implements Provider
 {
-    public function bootstrap(Registry $context): void
+    public function register(Context $context): void
     {
         $context->register(
             Cache::class,

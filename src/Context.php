@@ -4,7 +4,7 @@ namespace mindplay\funbox;
 
 use Closure;
 
-class Context implements Registry
+class Context
 {
     /**
      * @var Entry[] map where Entry ID => Component instance
@@ -43,7 +43,7 @@ class Context implements Registry
 
     public function add(Provider $provider): void
     {
-        $provider->bootstrap($this);
+        $provider->register($this);
     }
 
     public function createContainer(): Container
