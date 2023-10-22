@@ -1,5 +1,6 @@
 <?php
 
+use mindplay\funbox\Config;
 use mindplay\funbox\Context;
 use mindplay\funbox\DependencyException;
 use mindplay\funbox\id;
@@ -120,6 +121,82 @@ test(
         $container = $context->createContainer();
 
         eq($container->get("a"), 101, "extension applied, with resolved dependency");
+    }
+);
+
+test(
+    "can apply configuration",
+    function () {
+        $context = new Context();
+
+        $context->add(new Config(["A"=>1, "B"=>2]));
+
+        $container = $context->createContainer();
+
+        ok($container->get("A") === 1 && $container->get("B") === 2, "can apply configuration array");
+    }
+);
+
+test(
+    "can load JSON configuration",
+    function () {
+        $context = new Context();
+
+        $context->add(Config::fromJSON(__DIR__ . "/fixture.json"));
+
+        $container = $context->createContainer();
+
+        eq($container->get("A"), 1, "can load top-level key/value");
+        eq($container->get("B.C.D"), 2, "can load nested key/value");
+
+        expect(
+            DependencyException::class,
+            "should throw for missing file",
+            function () {
+                Config::fromJSON(__DIR__ . "/does_not_exist.json");
+            },
+            [
+                "/File not found.*does_not_exist\\.json/"
+            ]
+        );
+    }
+);
+
+test(
+    "can load INI configuration",
+    function () {
+        $context = new Context();
+
+        $context->add(Config::fromINI(__DIR__ . "/fixture.ini"));
+
+        $container = $context->createContainer();
+
+        eq($container->get("SECRETS"), [123, 456], "can load top-level values; can tell arrays from objects");
+        eq($container->get("SERVER.PORT"), 123, "can load nested key/value");
+
+        expect(
+            DependencyException::class,
+            "should throw for missing file",
+            function () {
+                Config::fromINI(__DIR__ . "/does_not_exist.ini");
+            },
+            [
+                "/File not found.*does_not_exist\\.ini/"
+            ]
+        );
+    }
+);
+
+test(
+    "can load system environment as configuration",
+    function () {
+        $context = new Context();
+
+        $context->add(Config::fromEnv());
+
+        $container = $context->createContainer();
+
+        eq($container->get("TEST"), "HELLO_WORLD", "it imports the system environment (did you run this test via 'composer test' ?)");
     }
 );
 
