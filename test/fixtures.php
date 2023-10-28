@@ -31,10 +31,10 @@ class UserProvider implements Provider
     {
         $context->register(
             Cache::class,
-            fn (#[id("cache.path")] string $path) => new FileCache($path)
+            fn (#[id("CACHE_PATH")] string $path) => new FileCache($path)
         );
 
-        $context->set("cache.path", "/tmp/cache");
+        $context->set("CACHE_PATH", "/tmp/cache");
 
         $context->register(
             Database::class,

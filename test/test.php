@@ -9,6 +9,13 @@ require dirname(__DIR__) . "/vendor/autoload.php";
 
 use function mindplay\testies\{ test, ok, eq, expect, configure, run };
 
+if (getenv("XDEBUG_MODE")) {
+    configure()->enableCodeCoverage(
+        output_path: __DIR__ . "/coverage.xml",
+        source_paths: [dirname(__DIR__) . "/src"]
+    );
+}
+
 test(
     "can resolve dependency graph",
     function () {
@@ -37,18 +44,6 @@ test(
                 $context->register(
                     Cache::class,
                     fn ($path) => new FileCache($path)
-                );
-            },
-            "/unspecified dependency \\\$path/"
-        );
-
-        expect(
-            DependencyException::class,
-            "throws when scalar type is present but no name is specified",
-            function () use ($context) {
-                $context->register(
-                    Cache::class,
-                    fn (string $path) => new FileCache($path)
                 );
             },
             "/unspecified dependency \\\$path/"
@@ -109,6 +104,24 @@ test(
 );
 
 test(
+    "can fall back to parameter name for built-in types (configuration values)",
+    function () {
+        $context = new Context();
+
+        $context->register(
+            Cache::class,
+            fn (#[id("CACHE_PATH")] string $path) => new FileCache($path)
+        );
+
+        $context->set("CACHE_PATH", "/tmp/cache");
+
+        $container = $context->createContainer();
+
+        eq($container->get(Cache::class)->path, $container->get("CACHE_PATH"));
+    }
+);
+
+test(
     "can extend components",
     function () {
         $context = new Context();
@@ -146,8 +159,9 @@ test(
 
         $container = $context->createContainer();
 
-        eq($container->get("A"), 1, "can load top-level key/value");
-        eq($container->get("B.C.D"), 2, "can load nested key/value");
+        eq($container->get("SECRETS"), [123, 456], "can load top-level values; can tell arrays from objects");
+        eq($container->get("SERVER_PORT"), 123, "can load nested key/value");
+        eq($container->get("A_B_C"), "TEST", "can load deeply nested key/value");
 
         expect(
             DependencyException::class,
@@ -172,7 +186,7 @@ test(
         $container = $context->createContainer();
 
         eq($container->get("SECRETS"), [123, 456], "can load top-level values; can tell arrays from objects");
-        eq($container->get("SERVER.PORT"), 123, "can load nested key/value");
+        eq($container->get("SERVER_PORT"), 123, "can load nested key/value");
 
         expect(
             DependencyException::class,

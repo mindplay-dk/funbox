@@ -9,13 +9,15 @@
         }
     ],
     "scripts": {
-        "test": "TEST=HELLO_WORLD php test/test.php"
+        "test": "TEST=HELLO_WORLD php test/test.php",
+        "coverage": "XDEBUG_MODE=coverage TEST=HELLO_WORLD php test/test.php"
     },
     "require": {
         "psr/container": "^1 || ^2"
     },
     "require-dev": {
-        "mindplay/testies": "^1.0"
+        "mindplay/testies": "^1.0",
+        "phpunit/php-code-coverage": "^9.2"
     },
     "autoload": {
         "psr-4": {

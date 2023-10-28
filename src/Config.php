@@ -49,7 +49,7 @@ class Config implements Provider
         $result = [];
 
         $prefix = count($path)
-            ? implode(".", $path) . "."
+            ? implode("_", $path) . "_"
             : "";
 
         foreach ($data as $name => $value) {

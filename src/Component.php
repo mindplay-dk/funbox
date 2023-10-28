@@ -39,8 +39,8 @@ class Component implements Entry, Definition
 
             if (count($attrs)) {
                 $this->dependencies[] = $attrs[0]->getArguments()[0];
-            } else if ($type instanceof ReflectionNamedType && ! $type->isBuiltin()) {
-                $this->dependencies[] = $type->getName();
+            } else if ($type instanceof ReflectionNamedType) {
+                $this->dependencies[] = $type->isBuiltin() ? $param->getName() : $type->getName();
             } else {
                 throw new UnspecifiedDependencyException($function, $param, $this->id);
             }

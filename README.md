@@ -7,11 +7,9 @@
 * Performance on par with that of Pimple.
 * Verbosity similar to Pimple, but more declarative.
 
-⚠ ***WARNING:** still under development.*
-
 This container was designed specifically for PHP 8.x to leverage `fn` function expressions with [attributes](https://www.php.net/manual/en/language.attributes.overview.php) for configuration.
 
-Compared with complex IOC containers, configuration is more verbose, but also more explicit - every component has a defined factory function, which makes it possible to validate all dependencies up front, without actually loading any classes. The use of function expressions enable an IDE or static analysis tool to verify and type-check all constructor calls.
+Compared with some more complex container libraries, bootstrapping may be more verbose, but is also more explicit - every component has a defined factory function, which makes it possible to validate all dependencies up front, without actually loading any classes. The use of function expressions enable an IDE or static analysis tool to verify and type-check all constructor calls.
 
 ## Usage
 
@@ -22,23 +20,33 @@ $context = new Context();
 
 $context->register(
     Cache::class,
-    fn (#[id("cache.path")] string $path) => new FileCache($path)
+    fn (string $CACHE_PATH) => new FileCache($path)
 );
 
-$context->set("cache.path", "/tmp/cache");
+$context->set("CACHE_PATH", "/tmp/cache");
 
 $context->register(
-    Database::class,
+    "db.write-master",
     fn () => new Database()
 );
 
 $context->register(
     UserRepository::class,
-    fn (Database $db, Cache $cache) => new UserRepository($db, $cache)
+    fn (#[id("db.write-master")] Database $db, Cache $cache) => new UserRepository($db, $cache)
 );
 ```
 
-Note the use of the attribute `#[id("cache.path")]` applied to the `string $path` argument for the `FileCache` function expression - this tells the container to resolve the dependency using the component named `cache.path`.
+Note how the `string $CACHE_PATH` argument is resolved using the parameter name `CACHE_PATH` - this fallback is available for built-in types such as `string`, `int` and `array`. You can load configuration values from JSON or INI files, or from the system environment, using `Config` providers - this will be covered below.
+
+Next, note the use of the `#[id("db.write-master")]` attribute applied to the `Database $db` argument for the `UserRepository` factory function - this tells the container to resolve the dependency using the component named `db.write-master`. This pattern is useful when you have multiple instances of the same class.
+
+**By convention:**
+
+- **Singletons** should be registered using `ClassName::class` expressions.
+- **Named instances** should be registered using `dotted.lower.case` names.
+- **Configuration values** should be registered using `ALL_CAPS` names.
+
+Following these conventions avoids component name collisions.
 
 Now create a `Container` and look up a component instance:
 
@@ -52,7 +60,7 @@ The dependencies of the `UserRepository` factory-function will get resolved and 
 
 ## Providers
 
-You can achieve modularity by wrapping a section of bootstrapping in a `Provider` implementation:
+You can achieve reusable bootstrapping by wrapping registrations in a `Provider` implementation:
 
 ```php
 class CacheProvider implements Provider
@@ -61,25 +69,27 @@ class CacheProvider implements Provider
     {
         $context->register(
             Cache::class,
-            fn (#[id("cache.path")] string $path) => new FileCache($path)
+            fn (string $CACHE_PATH) => new FileCache($path)
         );
 
-        $context->set("cache.path", "/tmp/cache");
+        $context->set("CACHE_PATH", "/tmp/cache");
     }
 }
 ```
 
-Use the `add` method to apply the provider to a `Context`:
+Then use the `add` method to apply the provider to a `Context`:
 
 ```php
 $context->add(new CacheProvider());
 ```
 
-### `Config` Provider
+### `Config` Providers
 
-The built-in `Config` provider allows you to load configuration from standard JSON or INI files, and/or import your system environment variables.
+The built-in `Config` provider allows you to load configuration from standard JSON or INI files, and/or import your system environment variables. You can use configuration providers to decouple yourself from configuration sources, e.g. loading different configuration files in production or staging, or injecting configuration values directly in tests.
 
-You can use configuration providers to decouple yourself from configuration sources - for example, if you create a provider that expects some external configuration:
+The advantage of keeping configuration values in the container (as opposed to using some sort of configuration facility) is you get consistent dependency validation up front - the values in your configuration are just dependencies, same as any other. You can connect these dependencies to the components where they're needed, the exact same way you connect every other component in your application.
+
+As an example, here's a provider that requires a `CACHE_PATH` configuration value:
 
 ```php
 class CacheProvider implements Provider
@@ -88,35 +98,49 @@ class CacheProvider implements Provider
     {
         $context->register(
             Cache::class,
-            fn (#[id("cache.path")] string $path) => new FileCache($path)
+            fn (string $CACHE_PATH) => new FileCache($CACHE_PATH)
         );
     }
 }
 ```
 
-Note that `cache.path` was not defined by this provider - we can now load it from a `config.json` file like this one:
+Note that `CACHE_PATH` is not defined by the provider itself - we can load this value from a `config.json` file like this one:
 
 ```json
 {
-    "cache": {
-        "path": "/tmp/my-app/cache"
+    "CACHE": {
+        "PATH": "/tmp/my-app/cache"
     }
 }
 ```
+
+And then bootstrap it like this:
 
 ```php
 $context->add(Config::fromJSON("config.json"));
 ```
 
-Or, from a `config.ini` file like the following:
+Similarly, we could load this value from a `config.ini` file like this one:
 
 ```ini
 [cache]
 path = /tmp/my-app/cache
 ```
 
+And then bootstrap it like this:
+
 ```php
 $context->add(Config::fromINI("config.ini"));
 ```
 
-TODO import system environment
+If you prefer using system environment variables, that's possible too, e.g. from a bash script:
+
+```bash
+CACHE_PATH=/tmp
+```
+
+And then bootstrap the system environment:
+
+```php
+$context->add(Config::fromEnv());
+```
