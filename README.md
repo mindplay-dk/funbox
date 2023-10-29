@@ -6,6 +6,7 @@
 * Full container bootstrapping validation at startup.
 * Performance on par with that of Pimple.
 * Verbosity similar to Pimple, but more declarative.
+* Mutable Context, immutable Containers.
 
 This container was designed specifically for PHP 8.x to leverage `fn` function expressions with [attributes](https://www.php.net/manual/en/language.attributes.overview.php) for configuration.
 
@@ -13,7 +14,14 @@ Compared with some more complex container libraries, bootstrapping may be more v
 
 ## Usage
 
-Create a `Context` and bootstrap it:
+This container has two primary APIs:
+
+- `Context` represents a logical dependency injection context - this is where you register your component/service *definitions*.
+- `Container` represents an actual container instance - this is where your component/service *instances* exist.
+
+### Creating a `Context`
+
+First off, create a `Context` and bootstrap it:
 
 ```php
 $context = new Context();
@@ -48,7 +56,7 @@ Next, note the use of the `#[id("db.write-master")]` attribute applied to the `D
 
 Following these conventions avoids component name collisions.
 
-Now create a `Container` and look up a component instance:
+Once your `Context` is ready, create a `Container`, and you can look up a component instance:
 
 ```php
 $container = $context->createContainer();
@@ -57,6 +65,10 @@ $cache = $container->get(UserRepository::class);
 ```
 
 The dependencies of the `UserRepository` factory-function will get resolved and injected.
+
+Note that validation of the `Context` takes place when you first call `createContainer` - any
+unsatisfied dependencies will generate an `UnsatisfiedDependencyException`, which enables you to
+catch and correct mistakes as early as possible.
 
 ## Providers
 

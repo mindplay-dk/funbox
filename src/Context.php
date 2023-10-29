@@ -4,6 +4,9 @@ namespace mindplay\funbox;
 
 use Closure;
 
+/**
+ * This class represents a collection of component/service definitions.
+ */
 class Context
 {
     /**
@@ -12,7 +15,7 @@ class Context
     private array $components = [];
 
     /**
-     * @var (Extension[])[] map where Entry ID => Extension list
+     * @var (Component[])[] map where Entry ID => list of Component extensions
      */
     private array $extensions = [];
 
@@ -21,6 +24,9 @@ class Context
      */
     private array $unvalidated = [];
 
+    /**
+     * @throws UnspecifiedDependencyException if the given Closure has any unspecified dependencies
+     */
     public function register(string $id, Closure $create): void
     {
         $this->components[$id] = $this->unvalidated[] = new Component($id, $create);
@@ -46,6 +52,9 @@ class Context
         $provider->register($this);
     }
 
+    /**
+     * @throws UnsatisfiedDependencyException if any of the components in the Container have unsatisfied dependencies
+     */
     public function createContainer(): Container
     {
         foreach ($this->unvalidated as $component) {
