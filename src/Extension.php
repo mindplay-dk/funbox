@@ -9,13 +9,13 @@ use Interop\Container\ServiceProviderInterface;
 /**
  * @see ServiceProviderInterface::getExtensions()
  */
-class Extension implements ExtensionFunction, Validation
+class Extension extends Definition implements ExtensionFunction
 {
-    use Definition;
-
     public function __construct(string $id, Closure $extend)
     {
-        $this->init($id, $extend);
+        parent::__construct($id, $extend);
+
+        $this->extension_id = $id;
     }
 
     public function __invoke(ContainerInterface $container, mixed $previous): mixed

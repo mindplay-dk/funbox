@@ -52,7 +52,7 @@ test(
 );
 
 test(
-    "detects and throws for unsatisfied dependency",
+    "detects and throws for unsatisfied dependency in factory",
     function () {
         $context = new Context();
 
@@ -130,10 +130,31 @@ test(
         $context->set("b", 100);
 
         $context->extend("a", fn (#[id("a")] int $a, #[id("b")] int $b) => $a + $b);
+        $context->extend("a", fn (#[id("a")] $a) => $a + 10);
 
         $container = $context->createContainer();
 
-        eq($container->get("a"), 101, "extension applied, with resolved dependency");
+        eq($container->get("a"), 111, "extension applied, with resolved dependency");
+    }
+);
+
+test(
+    "detects and throws for undefined dependency in extension",
+    function () {
+        $context = new Context();
+
+        $context->set("a", 1);
+
+        $context->extend("a", fn (#[id("b")] int $does_not_exist) => $does_not_exist);
+
+        expect(
+            DependencyException::class,
+            "should throw for missing dependency in extension",
+            function () use ($context) {
+                $context->createContainer();
+            },
+            "/unsatisfied dependency: b for parameter \\\$does_not_exist/"
+        );
     }
 );
 

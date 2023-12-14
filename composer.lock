@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c19c7cad186cb22a55d5f9a0882a2e36",
+    "content-hash": "66de967cb14a4133e983c9b60eb87994",
     "packages": [
         {
             "name": "container-interop/service-provider",
@@ -97,28 +97,68 @@
     ],
     "packages-dev": [
         {
-            "name": "mindplay/testies",
-            "version": "1.0.0",
+            "name": "mindplay/readable",
+            "version": "1.2.0.x-dev",
             "source": {
                 "type": "git",
-                "url": "https://github.com/mindplay-dk/testies.git",
-                "reference": "6501bc0ec4599948ee83284aa926538af839de50"
+                "url": "https://github.com/mindplay-dk/readable.git",
+                "reference": "917aa44f07c8a7e279a9632f6144c2f38569d3e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mindplay-dk/testies/zipball/6501bc0ec4599948ee83284aa926538af839de50",
-                "reference": "6501bc0ec4599948ee83284aa926538af839de50",
+                "url": "https://api.github.com/repos/mindplay-dk/readable/zipball/917aa44f07c8a7e279a9632f6144c2f38569d3e7",
+                "reference": "917aa44f07c8a7e279a9632f6144c2f38569d3e7",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.3 || ^8.0"
+                "php": "^8.0"
             },
             "require-dev": {
-                "guzzlehttp/guzzle": "^6.3.3",
+                "mindplay/testies": "^1.0",
                 "phpunit/php-code-coverage": "^9.2.5"
             },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Formats PHP values as human-readable strings",
+            "support": {
+                "issues": "https://github.com/mindplay-dk/readable/issues",
+                "source": "https://github.com/mindplay-dk/readable/tree/master"
+            },
+            "time": "2023-12-05T11:30:37+00:00"
+        },
+        {
+            "name": "mindplay/testies",
+            "version": "1.1.0.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mindplay-dk/testies.git",
+                "reference": "4c9659b17f91bb64b25778e1909ea24c323a053a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mindplay-dk/testies/zipball/4c9659b17f91bb64b25778e1909ea24c323a053a",
+                "reference": "4c9659b17f91bb64b25778e1909ea24c323a053a",
+                "shasum": ""
+            },
+            "require": {
+                "mindplay/readable": "^1.2@dev",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "nyholm/psr7": "^1.8",
+                "phpunit/php-code-coverage": "^10.1.7",
+                "zaphyr-org/http-client": "^1.0"
+            },
             "suggest": {
-                "phpunit/php-code-coverage": "^9.2.5"
+                "phpunit/php-code-coverage": "^10.1.7"
             },
             "type": "library",
             "autoload": {
@@ -142,9 +182,9 @@
             "description": "Yeah, testies: a lightweight library for quick, simple unit-testing",
             "support": {
                 "issues": "https://github.com/mindplay-dk/testies/issues",
-                "source": "https://github.com/mindplay-dk/testies/tree/1.0.0"
+                "source": "https://github.com/mindplay-dk/testies/tree/1.1.0"
             },
-            "time": "2021-02-25T09:50:25+00:00"
+            "time": "2023-12-14T17:30:41+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -737,7 +777,10 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "mindplay/testies": 20,
+        "mindplay/readable": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

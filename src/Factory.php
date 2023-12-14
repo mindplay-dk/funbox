@@ -6,13 +6,11 @@ use Closure;
 use Psr\Container\ContainerInterface;
 use Interop\Container\ServiceProviderInterface;
 
-class Factory implements FactoryFunction, Validation
+class Factory extends Definition implements FactoryFunction
 {
-    use Definition;
-
     public function __construct(string $id, Closure $create)
     {
-        $this->init($id, $create);
+        parent::__construct($id, $create);
     }
 
     public function __invoke(ContainerInterface $container): mixed

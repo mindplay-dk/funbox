@@ -9,11 +9,11 @@ use ReflectionParameter;
 use Psr\Container\ContainerInterface;
 use Interop\Container\ServiceProviderInterface;
 
-trait Definition
+abstract class Definition implements Validation
 {
-    private string $id;
-
-    private Closure $definition;
+    protected string $id;
+    protected ?string $extension_id = null;
+    protected Closure $definition;
 
     /**
      * @var ReflectionParameter[]
@@ -25,7 +25,7 @@ trait Definition
      */
     private array $dependencies;
 
-    private function init(string $id, Closure $definition): void
+    public function __construct(string $id, Closure $definition)
     {
         $function = new ReflectionFunction($definition);
 
@@ -49,7 +49,7 @@ trait Definition
         }
     }
 
-    private function resolveDeps(ContainerInterface $container, mixed $previous = null): mixed
+    protected function resolveDeps(ContainerInterface $container, mixed $previous = null): mixed
     {
         $resolved = [];
 
@@ -71,7 +71,7 @@ trait Definition
     public function validate(Context $context): void
     {
         foreach ($this->dependencies as $index => $id) {
-            if (! $context->has($id) && ! $this->params[$index]->isOptional() && ! $this->params[$index]->allowsNull()) {
+            if (! $context->has($id) && ! $this->params[$index]->isOptional() && ! $this->params[$index]->allowsNull() && ! ($this->extension_id === $id)) {
                 $function = new ReflectionFunction($this->definition);
 
                 throw new UnsatisfiedDependencyException($function, $this->params[$index], $id);

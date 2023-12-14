@@ -18,7 +18,8 @@
     },
     "require-dev": {
         "psr/container": "^2",
-        "mindplay/testies": "^1.0",
+        "mindplay/testies": "^1.1@dev",
+        "mindplay/readable": "^1.2@dev",
         "phpunit/php-code-coverage": "^9.2"
     },
     "autoload": {
