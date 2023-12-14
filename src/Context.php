@@ -10,17 +10,17 @@ use Closure;
 class Context
 {
     /**
-     * @var Entry[] map where Entry ID => Component instance
+     * @var FactoryFunction[] map where Entry ID => Component instance
      */
-    private array $components = [];
+    private array $factories = [];
 
     /**
-     * @var (Component[])[] map where Entry ID => list of Component extensions
+     * @var (ExtensionFunction[])[] map where Entry ID => list of Component extensions
      */
     private array $extensions = [];
 
     /**
-     * @var Definition[] list of unvalidated Definitions
+     * @var Validation[] list of unvalidated Factories and Extensions
      */
     private array $unvalidated = [];
 
@@ -29,7 +29,7 @@ class Context
      */
     public function register(string $id, Closure $create): void
     {
-        $this->components[$id] = $this->unvalidated[] = new Component($id, $create);
+        $this->factories[$id] = $this->unvalidated[] = new Factory($id, $create);
     }
 
     public function set(string $id, mixed $value): void
@@ -39,12 +39,12 @@ class Context
 
     public function extend(string $id, Closure $extend): void
     {
-        $this->extensions[$id][] = $this->unvalidated[] = new Component($id, $extend);
+        $this->extensions[$id][] = $this->unvalidated[] = new Extension($id, $extend);
     }
 
     public function has(string $id): bool
     {
-        return array_key_exists($id, $this->components);
+        return array_key_exists($id, $this->factories);
     }
 
     public function add(Provider $provider): void
@@ -63,6 +63,6 @@ class Context
 
         $this->unvalidated = [];
 
-        return new Container($this->components, $this->extensions);
+        return new Container($this->factories, $this->extensions);
     }
 }

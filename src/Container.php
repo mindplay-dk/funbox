@@ -7,12 +7,12 @@ use Psr\Container\ContainerInterface;
 class Container implements ContainerInterface
 {
     /**
-     * @var Component[] map where component name => Component instance
+     * @var FactoryFunction[] map where component name => Component instance
      */
-    private array $components = [];
+    private array $factories = [];
 
     /**
-     * @var (Component[])[] map where Entry ID => Extension list
+     * @var (ExtensionFunction[])[] map where Entry ID => Extension list
      */
     private array $extensions = [];
 
@@ -23,7 +23,7 @@ class Container implements ContainerInterface
 
     public function __construct(array $components, array $extensions)
     {
-        $this->components = $components;
+        $this->factories = $components;
         $this->extensions = $extensions;
     }
 
@@ -32,11 +32,11 @@ class Container implements ContainerInterface
         // TODO verify against cyclic dependencies
 
         if (! isset($this->instances[$name])) {
-            $this->instances[$name] = $this->components[$name]->resolve($this);
+            $this->instances[$name] = $this->factories[$name]($this);
 
             if (array_key_exists($name, $this->extensions)) {
                 foreach ($this->extensions[$name] as $extension) {
-                    $this->instances[$name] = $extension->resolve($this);
+                    $this->instances[$name] = $extension($this, $this->instances[$name] ?? null);
                 }
             }
         }
@@ -46,6 +46,6 @@ class Container implements ContainerInterface
 
     public function has(string $name): bool
     {
-        return array_key_exists($name, $this->components);
+        return array_key_exists($name, $this->factories);
     }
 }

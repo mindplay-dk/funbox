@@ -13,9 +13,11 @@
         "coverage": "XDEBUG_MODE=coverage TEST=HELLO_WORLD php test/test.php"
     },
     "require": {
-        "psr/container": "^1 || ^2"
+        "psr/container": "^1 || ^2",
+        "container-interop/service-provider": "^0.4.1"
     },
     "require-dev": {
+        "psr/container": "^2",
         "mindplay/testies": "^1.0",
         "phpunit/php-code-coverage": "^9.2"
     },
