@@ -7,20 +7,24 @@ use Psr\Container\ContainerInterface;
 class Container implements ContainerInterface
 {
     /**
-     * @var FactoryFunction[] map where component name => Component instance
+     * @var array<string,(callable(ContainerInterface):mixed)> map where Entry ID => Component instance
      */
     private array $factories = [];
 
     /**
-     * @var (ExtensionFunction[])[] map where Entry ID => Extension list
+     * @var array<string,(callable(ContainerInterface,mixed):mixed)[]> map where Entry ID => list of Component extensions
      */
     private array $extensions = [];
 
     /**
-     * @var array map where component name => component instance
+     * @var array<string,mixed> map where component name => component instance
      */
     private array $instances = [];
 
+    /**
+     * @param array<string,(callable(ContainerInterface):mixed)> $components map where Entry ID => Component instance
+     * @param array<string,(callable(ContainerInterface,mixed):mixed)[]> $extensions map where Entry ID => list of Component extensions
+     */
     public function __construct(array $components, array $extensions)
     {
         $this->factories = $components;

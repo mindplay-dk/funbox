@@ -14,13 +14,13 @@
     },
     "require": {
         "psr/container": "^1 || ^2",
-        "container-interop/service-provider": "^0.4.1"
+        "container-interop/service-provider": "dev-master as 0.4.1"
     },
     "require-dev": {
         "psr/container": "^2",
         "mindplay/testies": "^1.1@dev",
         "mindplay/readable": "^1.2@dev",
-        "phpunit/php-code-coverage": "^9.2"
+        "phpunit/php-code-coverage": "^10.1.7"
     },
     "autoload": {
         "psr-4": {

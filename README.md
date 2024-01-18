@@ -95,6 +95,10 @@ Then use the `add` method to apply the provider to a `Context`:
 $context->add(new CacheProvider());
 ```
 
+## PSR Service Providers
+
+TODO add docs
+
 ### `Config` Providers
 
 The built-in `Config` provider allows you to load configuration from standard JSON or INI files, and/or import your system environment variables. You can use configuration providers to decouple yourself from configuration sources, e.g. loading different configuration files in production or staging, or injecting configuration values directly in tests.

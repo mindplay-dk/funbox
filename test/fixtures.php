@@ -1,8 +1,10 @@
 <?php
 
+use Interop\Container\ServiceProviderInterface;
 use mindplay\funbox\Context;
 use mindplay\funbox\Provider;
 use mindplay\funbox\id;
+use Psr\Container\ContainerInterface;
 
 interface Cache
 {}
@@ -45,5 +47,26 @@ class UserProvider implements Provider
             UserRepository::class,
             fn (Database $db, Cache $cache) => new UserRepository($db, $cache)
         );
+    }
+}
+
+class SamplePSRProvider implements ServiceProviderInterface
+{
+    public function getFactories(): array
+    {
+        return [
+            "A" => fn () => "A",
+            "B" => fn () => "B",
+            "AB" => fn (ContainerInterface $container) => $container->get("A") . $container->get("B"),
+        ];
+    }
+
+    public function getExtensions(): array
+    {
+        return [
+            "AB" => [
+                fn (ContainerInterface $container, string $value) => $value . "C",
+            ],
+        ];
     }
 }

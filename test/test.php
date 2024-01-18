@@ -33,6 +33,38 @@ test(
 );
 
 test(
+    "can import PSR service providers",
+    function () {
+        $context = new Context();
+
+        $context->addProvider(new SamplePSRProvider);
+
+        $container = $context->createContainer();
+
+        eq($container->get("A"), "A");
+        eq($container->get("B"), "B");
+        eq($container->get("AB"), "ABC");
+    }
+);
+
+test(
+    "can act as PSR service provider",
+    function () {
+        $context = new Context();
+
+        $context->add(new UserProvider);
+
+        $another_context = new Context();
+
+        $another_context->addProvider($context);
+
+        $container = $another_context->createContainer();
+
+        ok($container->get(Cache::class) instanceof FileCache);
+    }
+);
+
+test(
     "throws for unspecified dependencies",
     function () {
         $context = new Context();
