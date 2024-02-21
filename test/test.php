@@ -142,7 +142,7 @@ test(
 
         $context->register(
             Cache::class,
-            fn (#[id("CACHE_PATH")] string $path) => new FileCache($path)
+            fn (string $CACHE_PATH) => new FileCache($CACHE_PATH)
         );
 
         $context->set("CACHE_PATH", "/tmp/cache");
