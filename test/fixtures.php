@@ -52,21 +52,31 @@ class UserProvider implements Provider
 
 class SamplePSRProvider implements ServiceProviderInterface
 {
-    public function getFactories(): array
+    public function getServiceIDs(): array
     {
-        return [
-            "A" => fn () => "A",
-            "B" => fn () => "B",
-            "AB" => fn (ContainerInterface $container) => $container->get("A") . $container->get("B"),
-        ];
+        return ["A", "B", "AB"];
     }
 
-    public function getExtensions(): array
+    public function createService(string $id, ContainerInterface $container): mixed
     {
-        return [
-            "AB" => [
-                fn (ContainerInterface $container, string $value) => $value . "C",
-            ],
-        ];
+        return match ($id) {
+            "A" => "A",
+            "B" => "B",
+            "AB" => $container->get("A") . $container->get("B"),
+            default => throw new NotFoundException(),
+        };
+    }
+
+    public function getExtensionIDs(): array
+    {
+        return ["AB"];
+    }
+
+    public function extendService(string $id, ContainerInterface $container, mixed $previous): mixed
+    {
+        return match ($id) {
+            "AB" => $previous . "C",
+            default => throw new NotFoundException(),
+        };
     }
 }

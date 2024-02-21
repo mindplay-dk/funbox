@@ -12,9 +12,15 @@
         "test": "TEST=HELLO_WORLD php test/test.php",
         "coverage": "XDEBUG_MODE=coverage TEST=HELLO_WORLD php test/test.php"
     },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/mindplay-dk/service-provider"
+        }
+    ],
     "require": {
         "psr/container": "^1 || ^2",
-        "container-interop/service-provider": "dev-master as 0.4.1"
+        "container-interop/service-provider": "^0.5@dev"
     },
     "require-dev": {
         "psr/container": "^2",

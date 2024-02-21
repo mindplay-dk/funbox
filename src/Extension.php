@@ -3,14 +3,12 @@
 namespace mindplay\funbox;
 
 use Closure;
-use Interop\Container\ExtensionDefinitionInterface;
 use Psr\Container\ContainerInterface;
-use Interop\Container\ServiceProviderInterface;
 
 /**
  * @see ServiceProviderInterface::getExtensions()
  */
-class Extension extends Definition implements ExtensionDefinitionInterface
+class Extension extends Definition
 {
     public function __construct(string $id, Closure $extend)
     {

@@ -63,8 +63,13 @@ class Context implements ServiceProviderInterface
 
     public function addProvider(ServiceProviderInterface $provider): void
     {
-        $this->factories = array_merge($this->factories, $provider->getFactories());
-        $this->extensions = array_merge_recursive($this->extensions, $provider->getExtensions());
+        foreach ($provider->getServiceIDs() as $id) {
+            $this->factories[$id] = fn (ContainerInterface $container) => $provider->createService($id, $container);
+        }
+
+        foreach ($provider->getExtensionIDs() as $id) {
+            $this->extensions[$id][] = fn (ContainerInterface $container, mixed $previous) => $provider->extendService($id, $container, $previous);
+        }
     }
 
     /**
@@ -81,13 +86,27 @@ class Context implements ServiceProviderInterface
         return new Container($this->factories, $this->extensions);
     }
 
-    public function getFactories(): array
+    public function getServiceIDs(): array
     {
-        return $this->factories;
+        return array_keys($this->factories);
     }
 
-    public function getExtensions(): array
+    public function createService(string $id, ContainerInterface $container): mixed
     {
-        return $this->extensions;
+        return $this->factories[$id]($container);
+    }
+
+    public function getExtensionIDs(): array
+    {
+        return array_keys($this->extensions);
+    }
+
+    public function extendService(string $id, ContainerInterface $container, mixed $previous): mixed
+    {
+        foreach ($this->extensions[$id] as $extension) {
+            $previous = $extension($container, $previous);
+        }
+
+        return $previous;
     }
 }

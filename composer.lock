@@ -4,44 +4,41 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "edfb614120947e68f486cf28f024fe88",
+    "content-hash": "c15f9af404c99af07d13ce94b72301ad",
     "packages": [
         {
             "name": "container-interop/service-provider",
-            "version": "dev-master",
+            "version": "0.5.0.x-dev",
             "source": {
                 "type": "git",
-                "url": "https://github.com/container-interop/service-provider.git",
-                "reference": "71e3975e02f53d2a97b3cb5730dd5147ef766a11"
+                "url": "https://github.com/mindplay-dk/service-provider.git",
+                "reference": "eaab42393cb44289c48bf6f7eb278a0bce8e4ed5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/container-interop/service-provider/zipball/71e3975e02f53d2a97b3cb5730dd5147ef766a11",
-                "reference": "71e3975e02f53d2a97b3cb5730dd5147ef766a11",
+                "url": "https://api.github.com/repos/mindplay-dk/service-provider/zipball/eaab42393cb44289c48bf6f7eb278a0bce8e4ed5",
+                "reference": "eaab42393cb44289c48bf6f7eb278a0bce8e4ed5",
                 "shasum": ""
             },
             "require": {
                 "php": ">= 8.0.0",
                 "psr/container": "^1.0 || ^2.0"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
                     "Interop\\Container\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
             "description": "Promoting container interoperability through standard service providers",
             "homepage": "https://github.com/container-interop/service-provider",
             "support": {
-                "issues": "https://github.com/container-interop/service-provider/issues",
-                "source": "https://github.com/container-interop/service-provider/tree/master"
+                "source": "https://github.com/mindplay-dk/service-provider/tree/0.5.0"
             },
-            "time": "2024-01-14T09:18:37+00:00"
+            "time": "2024-02-21T10:24:29+00:00"
         },
         {
             "name": "psr/container",
@@ -784,14 +781,7 @@
             "time": "2023-11-20T00:12:19+00:00"
         }
     ],
-    "aliases": [
-        {
-            "package": "container-interop/service-provider",
-            "version": "9999999-dev",
-            "alias": "0.4.1",
-            "alias_normalized": "0.4.1.0"
-        }
-    ],
+    "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
         "container-interop/service-provider": 20,

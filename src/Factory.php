@@ -3,11 +3,9 @@
 namespace mindplay\funbox;
 
 use Closure;
-use Interop\Container\FactoryDefinitionInterface;
 use Psr\Container\ContainerInterface;
-use Interop\Container\ServiceProviderInterface;
 
-class Factory extends Definition implements FactoryDefinitionInterface
+class Factory extends Definition
 {
     public function __construct(string $id, Closure $create)
     {
