@@ -58,12 +58,14 @@ class Component implements Entry, Definition
         }
     }
 
-    public function resolve(Container $container): mixed
+    public function resolve(Container $container, array $unresolved = []): mixed
     {
         $resolved = [];
 
         foreach ($this->dependencies as $index => $id) {
-            if ($container->has($id)) {
+            if (array_key_exists($id, $unresolved)) {
+                $resolved[] = $unresolved[$id];
+            } else if ($container->has($id)) {
                 $resolved[] = $container->get($id);
             } else if ($this->params[$index]->isOptional()) {
                 $resolved[] = $this->params[$index]->getDefaultValue();

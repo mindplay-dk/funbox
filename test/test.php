@@ -138,6 +138,143 @@ test(
 );
 
 test(
+    'can trap direct dependency cycle',
+    function () {
+        $context = new Context();
+
+        $context->register("a", fn (#[id("b")] $b) => "A{$b}");
+
+        $context->register("b", fn (#[id("a")] $a) => "B{$a}");
+
+        expect(
+            DependencyException::class,
+            "should throw for dependency cycle",
+            function () use ($context) {
+                $context->createContainer()->get("a");
+            },
+            "{Dependency cycle detected: a -> b -> a}i"
+        );
+
+        expect(
+            DependencyException::class,
+            "should throw for dependency cycle",
+            function () use ($context) {
+                $context->createContainer()->get("b");
+            },
+            "{Dependency cycle detected: b -> a -> b}i"
+        );
+    }
+);
+
+test(
+    'can trap indirect dependency cycle',
+    function () {
+        $factory = new Context();
+
+        $factory->register("a", fn (#[id("b")] $b) => "A{$b}");
+
+        $factory->register("b", fn (#[id("c")] $c) => "B{$c}");
+
+        $factory->register("c", fn (#[id("a")] $a) => "C{$a}");
+
+        expect(
+            DependencyException::class,
+            "should throw for dependency cycle (a)",
+            function () use ($factory) {
+                $factory->createContainer()->get("a");
+            },
+            "{Dependency cycle detected: a -> b -> c -> a}i"
+        );
+
+        expect(
+            DependencyException::class,
+            "should throw for dependency cycle (b)",
+            function () use ($factory) {
+                $factory->createContainer()->get("b");
+            },
+            "{Dependency cycle detected: b -> c -> a -> b}i"
+        );
+
+        expect(
+            DependencyException::class,
+            "should throw for dependency cycle (c)",
+            function () use ($factory) {
+                $factory->createContainer()->get("c");
+            },
+            "{Dependency cycle detected: c -> a -> b -> c}i"
+        );
+
+        expect(
+            DependencyException::class,
+            "should throw for repeated dependency cycle",
+            function () use ($factory) {
+                $container = $factory->createContainer();
+
+                try {
+                    $container->get("c");
+                } catch (DependencyException $error) {
+                    $container->get("c");
+                }
+            },
+            "{Dependency cycle detected: c -> a -> b -> c}i"
+        );
+    }
+);
+
+test(
+    'can trap indirect dependency cycle via configuration',
+    function () {
+        $factory = new Context();
+
+        $factory->register("a", fn (#[id("b")] $b) => "A{$b}");
+
+        $factory->register("b", fn () => "B");
+
+        $factory->extend("b", fn (#[id("b")] $b, #[id("a")] $a) => "{$b}{$a}");
+
+        expect(
+            DependencyException::class,
+            "should throw for dependency cycle",
+            function () use ($factory) {
+                $factory->createContainer()->get("a");
+            },
+            "{Dependency cycle detected: a -> b -> a}i"
+        );
+
+        expect(
+            DependencyException::class,
+            "should throw for dependency cycle",
+            function () use ($factory) {
+                $factory->createContainer()->get("b");
+            },
+            "{Dependency cycle detected: b -> a -> b}i"
+        );
+    }
+);
+
+test(
+    'can trap deep dependency cycle',
+    function () {
+        $factory = new Context();
+
+        $factory->register("a", fn (#[id("b")] $b) => "A{$b}");
+
+        $factory->register("b", fn (#[id("c")] $c) => "B{$c}");
+
+        $factory->register("c", fn (#[id("b")] $b) => "C{$b}");
+
+        expect(
+            DependencyException::class,
+            "should throw for dependency cycle",
+            function () use ($factory) {
+                $factory->createContainer()->get("a");
+            },
+            "{Dependency cycle detected: b -> c -> b}i"
+        );
+    }
+);
+
+test(
     "can apply configuration",
     function () {
         $context = new Context();

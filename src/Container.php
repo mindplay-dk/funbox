@@ -21,6 +21,11 @@ class Container implements ContainerInterface
      */
     private array $instances = [];
 
+    /**
+     * @var array<string,int> map where component name => recursion depth
+     */
+    private array $resolving = [];
+
     public function __construct(array $components, array $extensions)
     {
         $this->components = $components;
@@ -29,15 +34,40 @@ class Container implements ContainerInterface
 
     public function get(string $name): mixed
     {
-        // TODO verify against cyclic dependencies
-
         if (! isset($this->instances[$name])) {
-            $this->instances[$name] = $this->components[$name]->resolve($this);
+            try {
+                if (array_key_exists($name, $this->resolving)) {
+                    $resolved_names = array_flip($this->resolving);
 
-            if (array_key_exists($name, $this->extensions)) {
-                foreach ($this->extensions[$name] as $extension) {
-                    $this->instances[$name] = $extension->resolve($this);
+                    ksort($resolved_names, SORT_NUMERIC);
+
+                    $cycle_start_index = array_search($name, $resolved_names, true) ?: 0;
+
+                    $names_in_cycle = [
+                        ...array_slice($resolved_names, $cycle_start_index),
+                        $name
+                    ];
+
+                    throw new DependencyException(
+                        "Dependency cycle detected: " . implode(' -> ', $names_in_cycle)
+                    );
+                } else {
+                    $this->resolving[$name] = count($this->resolving);
                 }
+
+                $instance = $this->components[$name]->resolve($this);
+
+                if (array_key_exists($name, $this->extensions)) {
+                    $unresolved = [$name => $instance];
+
+                    foreach ($this->extensions[$name] as $extension) {
+                        $instance = $extension->resolve($this, $unresolved);
+                    }
+                }
+
+                $this->instances[$name] = $instance;
+            } finally {
+                unset($this->resolving[$name]);
             }
         }
 
