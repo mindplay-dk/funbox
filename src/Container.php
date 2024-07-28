@@ -7,12 +7,12 @@ use Psr\Container\ContainerInterface;
 class Container implements ContainerInterface
 {
     /**
-     * @var Component[] map where component name => Component instance
+     * @var Entry[] map where component name => component Entry instance
      */
     private array $components = [];
 
     /**
-     * @var (Component[])[] map where Entry ID => Extension list
+     * @var (Entry[])[] map where Entry ID => extension Entry list
      */
     private array $extensions = [];
 

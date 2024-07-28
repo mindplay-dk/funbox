@@ -15,7 +15,7 @@ class Context
     private array $components = [];
 
     /**
-     * @var (Component[])[] map where Entry ID => list of Component extensions
+     * @var (Entry[])[] map where Entry ID => list of Component extensions
      */
     private array $extensions = [];
 
