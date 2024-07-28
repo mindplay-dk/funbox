@@ -44,17 +44,29 @@ $context->register(
 );
 ```
 
-Note how the `string $CACHE_PATH` argument is resolved using the parameter name `CACHE_PATH` - this fallback is available for built-in types such as `string`, `int` and `array`. You can load configuration values from JSON or INI files, or from the system environment, using `Config` providers - this will be covered below.
+Note how the `string $CACHE_PATH` argument is resolved using the parameter name `CACHE_PATH` - this fallback is available for built-in value-types (such as `string`, `int`, `float`, `bool` and `array`) because these are always registered under a logical name. You can load configuration values from JSON or INI files, or from the system environment, using `Config` providers - this will be covered below.
 
 Next, note the use of the `#[id("db.write-master")]` attribute applied to the `Database $db` argument for the `UserRepository` factory function - this tells the container to resolve the dependency using the component named `db.write-master`. This pattern is useful when you have multiple instances of the same class.
 
 **By convention:**
 
-- **Singletons** should be registered using `ClassName::class` expressions.
+- **Singletons** should be registered using `::class` expressions.
 - **Named instances** should be registered using `dotted.lower.case` names.
 - **Configuration values** should be registered using `ALL_CAPS` names.
 
-Following these conventions avoids component name collisions.
+<details>
+<summary>Following these conventions prevents component name collisions.</summary>
+
+> <br>
+> If you're wondering how or why, here's a longer explanation:
+>
+> Registering configuration values such as `CACHE_PATH` under an ALL-CAPS name ensures you can use them in function expressions, such as `fn (string $CACHE_PATH)`, without needing an `id` attribute.
+>
+> Registering named instances under dotted names such as `db.write-master` conversely ensures they cannot accidentally be referenced in function expressions without an `id` attribute - because you can't use characters like dots or hyphens in argument names.
+>
+> As for singletons, such as `ClassName::class` or `InterfaceName::class`, these are always referenced with a type-hint in function expressions, such as `fn (Cache $cache)` - since these type-hints are *not* built-in value-types such as `int`, `string`, `float`, etc.
+
+</details>
 
 Once your `Context` is ready, create a `Container`, and you can look up a component instance:
 

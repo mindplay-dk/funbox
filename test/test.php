@@ -142,9 +142,9 @@ test(
     function () {
         $context = new Context();
 
-        $context->register("a", fn (#[id("b")] $b) => "A{$b}");
+        $context->register("a", fn (string $b) => "A{$b}");
 
-        $context->register("b", fn (#[id("a")] $a) => "B{$a}");
+        $context->register("b", fn (string $a) => "B{$a}");
 
         expect(
             DependencyException::class,
@@ -171,11 +171,11 @@ test(
     function () {
         $factory = new Context();
 
-        $factory->register("a", fn (#[id("b")] $b) => "A{$b}");
+        $factory->register("a", fn (string $b) => "A{$b}");
 
-        $factory->register("b", fn (#[id("c")] $c) => "B{$c}");
+        $factory->register("b", fn (string $c) => "B{$c}");
 
-        $factory->register("c", fn (#[id("a")] $a) => "C{$a}");
+        $factory->register("c", fn (string $a) => "C{$a}");
 
         expect(
             DependencyException::class,
@@ -226,11 +226,11 @@ test(
     function () {
         $factory = new Context();
 
-        $factory->register("a", fn (#[id("b")] $b) => "A{$b}");
+        $factory->register("a", fn (string $b) => "A{$b}");
 
         $factory->register("b", fn () => "B");
 
-        $factory->extend("b", fn (#[id("b")] $b, #[id("a")] $a) => "{$b}{$a}");
+        $factory->extend("b", fn (string $b, string $a) => "{$b}{$a}");
 
         expect(
             DependencyException::class,
@@ -257,11 +257,11 @@ test(
     function () {
         $factory = new Context();
 
-        $factory->register("a", fn (#[id("b")] $b) => "A{$b}");
+        $factory->register("a", fn (string $b) => "A{$b}");
 
-        $factory->register("b", fn (#[id("c")] $c) => "B{$c}");
+        $factory->register("b", fn (string $c) => "B{$c}");
 
-        $factory->register("c", fn (#[id("b")] $b) => "C{$b}");
+        $factory->register("c", fn (string $b) => "C{$b}");
 
         expect(
             DependencyException::class,
