@@ -73,7 +73,7 @@ Once your `Context` is ready, create a `Container`, and you can look up a compon
 ```php
 $container = $context->createContainer();
 
-$cache = $container->get(UserRepository::class);
+$userRepo = $container->get(UserRepository::class);
 ```
 
 The dependencies of the `UserRepository` factory-function will get resolved and injected.
